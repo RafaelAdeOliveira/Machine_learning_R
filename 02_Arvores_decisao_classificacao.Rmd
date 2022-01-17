@@ -1,0 +1,50 @@
+---
+Formação Cientista de Dados - Rafael Amaral de Oliveira
+Árvores de Decisão para Classificação
+---
+
+```{r}
+#install.packages('rpart')
+library(rpart)
+```
+Carregar dados de credito e separa em treino e teste
+```{r}
+Credito = read.csv("Credit.csv")
+Credito
+amostra = sample(2,1000, replace = T, prob = c(0.7,0.3))
+creditoTreino = Credito[amostra == 1,]
+creditoTeste = Credito[amostra == 2,]
+```
+Cria modelo, método para classificação
+```{r}
+arvore = rpart(class ~ ., data = creditoTreino, method = "class")
+print(arvore)
+```
+Impressão da árvore
+```{r}
+# Executar com Ctrl + shift + Enter
+plot(arvore)
+text(arvore, use.n = TRUE, all = TRUE, cex = .6)
+```
+Previsão
+```{r}
+teste = predict(arvore, newdata = creditoTeste)
+head(teste)
+```
+Adiciona a coluna teste a creditoTeste
+```{r}
+cred = cbind(creditoTeste, teste)
+cred
+```
+Cria coluna com resultado categórico
+```{r}
+cred['Result'] = ifelse(cred$bad>=0.5, "bad", "good")
+cred
+```
+Matriz de Confusão
+```{r}
+confusao = table(cred$class, cred$Result)
+confusao
+taxaAcerto = (confusao[1] + confusao[4]) / sum(confusao)
+taxaAcerto
+```

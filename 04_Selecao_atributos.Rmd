@@ -1,0 +1,53 @@
+---
+Formação Cientista de Dados - Rafael Amaral de Oliveira
+Seleção de Atributos
+---
+```{r}
+#install.packages("e1071")
+#install.packages("randomForest")
+library(e1071)
+library(randomForest)
+```
+Dados de Crédito de Banco Alemão
+```{r}
+credito = read.csv("Credit.csv")
+head(Credito)
+```
+Transformar a classe em fator
+```{r}
+credito$class = as.factor(credito$class)
+```
+Dividir os dados em treino e teste
+Definir somente para ser possível repetir o experimento
+```{r}
+set.seed(234)
+amostra = sample(2, 1000, replace = TRUE, prob = c(0.7,0.3))
+creditoTreino = credito[amostra == 1,]
+creditoTeste = credito[amostra == 2,]
+```
+Criar um primeiro modelo com todos os atributos
+Avaliar a acurácia
+```{r}
+modelo = svm(class ~ ., creditoTeste)
+predicao = predict(modelo, creditoTeste)
+confusao = table(creditoTeste$class, predicao)
+confusao
+taxaAcerto = (confusao[1] + confusao[4]) / sum(confusao)
+taxaAcerto
+```
+Aplicamos um método de seleção de atributos
+```{r}
+importancia = randomForest(class ~., data = creditoTreino)
+col = importance(importancia)
+col
+varImpPlot(importancia)
+```
+Criar um segundo modelo com as variáveis independentes mais importantes
+```{r}
+modelo = svm(class ~ credit_amount + age + duration + checking_status, creditoTreino)
+predicao = predict(modelo, creditoTeste)
+confusao = table(creditoTeste$class, predicao)
+confusao
+taxaAcerto = (confusao[1] + confusao[4]) / sum(confusao)
+taxaAcerto
+```
